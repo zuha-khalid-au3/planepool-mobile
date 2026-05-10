@@ -307,7 +307,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 **Zuha Khalid**
 - GitHub: [@zuha-khalid-au3](https://github.com/zuha-khalid-au3)
-- Email: zuha@planepool.com
+- Email: zuhakhalid@gmail.com
 
 ## 🙏 Acknowledgments
 
