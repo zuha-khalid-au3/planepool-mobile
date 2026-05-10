@@ -1,25 +1,49 @@
 {
   "expo": {
-    "name": "planepool-mobile",
-    "slug": "planepool-mobile",
+    "name": "PlanePool",
+    "slug": "planepool",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "planepoolmobile",
-    "userInterfaceStyle": "automatic",
+    "scheme": "planepool",
+    "userInterfaceStyle": "light",
+    "author": "Zuha Khalid",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.planepool.app",
+      "infoPlist": {
+        "NSBluetoothPeripheralUsageDescription": "PlanePool uses Bluetooth to connect with other passengers on your flight",
+        "NSBluetoothAlwaysAndWhenInUseUsageDescription": "PlanePool uses Bluetooth to connect with other passengers on your flight",
+        "NSLocalNetworkUsageDescription": "PlanePool uses local network to coordinate rides",
+        "NSCameraUsageDescription": "PlanePool needs camera access for KYC verification",
+        "NSPhotoLibraryUsageDescription": "PlanePool needs access to your photos for document upload",
+        "NSLocationWhenInUseUsageDescription": "PlanePool uses your location to help coordinate rides"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#007AFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.planepool.app",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.INTERNET",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "output": "static",
@@ -43,6 +67,17 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "planepool-mobile"
+      },
+      "apiUrl": "https://api.planepool.com",
+      "adminPanelUrl": "https://admin.planepool.com",
+      "author": "Zuha Khalid"
     }
   }
 }
