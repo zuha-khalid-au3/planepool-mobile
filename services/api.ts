@@ -1,8 +1,26 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { appStorage, getDevLanHost } from './appStorage';
 import Constants from 'expo-constants';
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://api.planepool.com';
+/**
+ * Local dev: talk to planepool-admin (REST shim) on port 3000 unless overridden.
+ * Physical device on LAN: set EXPO_PUBLIC_API_URL=http://<your-mac-ip>:3000
+ */
+function getApiBaseUrl(): string {
+  const fromEnv = process.env.EXPO_PUBLIC_API_URL?.trim();
+  if (fromEnv) return fromEnv.replace(/\/$/, '');
+
+  if (__DEV__) {
+    const host = getDevLanHost();
+    return `http://${host}:3000`;
+  }
+
+  return (
+    Constants.expoConfig?.extra?.apiUrl?.replace(/\/$/, '') || 'https://api.planepool.com'
+  );
+}
+
+const API_URL = getApiBaseUrl();
 
 interface ApiResponse<T> {
   success: boolean;
@@ -33,7 +51,7 @@ class ApiClient {
     // Request interceptor
     this.client.interceptors.request.use(
       async (config) => {
-        const token = await AsyncStorage.getItem('accessToken');
+        const token = await appStorage.getItem('accessToken');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -52,14 +70,14 @@ class ApiClient {
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           try {
-            const refreshToken = await AsyncStorage.getItem('refreshToken');
+            const refreshToken = await appStorage.getItem('refreshToken');
             if (refreshToken) {
               const response = await this.client.post<AuthTokens>('/auth/refresh', {
                 refreshToken,
               });
               const { accessToken, refreshToken: newRefreshToken } = response.data;
-              await AsyncStorage.setItem('accessToken', accessToken);
-              await AsyncStorage.setItem('refreshToken', newRefreshToken);
+              await appStorage.setItem('accessToken', accessToken);
+              await appStorage.setItem('refreshToken', newRefreshToken);
               originalRequest.headers.Authorization = `Bearer ${accessToken}`;
               return this.client(originalRequest);
             }
@@ -83,8 +101,8 @@ class ApiClient {
         password,
       });
       const { accessToken, refreshToken } = response.data;
-      await AsyncStorage.setItem('accessToken', accessToken);
-      await AsyncStorage.setItem('refreshToken', refreshToken);
+      await appStorage.setItem('accessToken', accessToken);
+      await appStorage.setItem('refreshToken', refreshToken);
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
       return { success: true, data: response.data };
@@ -101,8 +119,8 @@ class ApiClient {
         name,
       });
       const { accessToken, refreshToken } = response.data;
-      await AsyncStorage.setItem('accessToken', accessToken);
-      await AsyncStorage.setItem('refreshToken', refreshToken);
+      await appStorage.setItem('accessToken', accessToken);
+      await appStorage.setItem('refreshToken', refreshToken);
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
       return { success: true, data: response.data };
@@ -117,8 +135,8 @@ class ApiClient {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      await AsyncStorage.removeItem('accessToken');
-      await AsyncStorage.removeItem('refreshToken');
+      await appStorage.removeItem('accessToken');
+      await appStorage.removeItem('refreshToken');
       this.accessToken = null;
       this.refreshToken = null;
     }
@@ -140,8 +158,8 @@ class ApiClient {
         otp,
       });
       const { accessToken, refreshToken } = response.data;
-      await AsyncStorage.setItem('accessToken', accessToken);
-      await AsyncStorage.setItem('refreshToken', refreshToken);
+      await appStorage.setItem('accessToken', accessToken);
+      await appStorage.setItem('refreshToken', refreshToken);
       return { success: true, data: response.data };
     } catch (error) {
       return this.handleError(error);

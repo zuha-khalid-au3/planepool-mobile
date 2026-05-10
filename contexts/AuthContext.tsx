@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { appStorage } from '../services/appStorage';
 import { apiClient } from '../services/api';
 
 interface User {
@@ -63,6 +63,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         user: action.payload.user,
         userToken: action.payload.token,
         error: null,
+        isLoading: false,
       };
     case 'SIGN_UP_SUCCESS':
       return {
@@ -71,6 +72,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         user: action.payload.user,
         userToken: action.payload.token,
         error: null,
+        isLoading: false,
       };
     case 'SIGN_OUT':
       return {
@@ -102,14 +104,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const bootstrapAsync = async () => {
       try {
-        const token = await AsyncStorage.getItem('accessToken');
+        const token = await appStorage.getItem('accessToken');
         if (token) {
           // Verify token is still valid
           const profileResponse = await apiClient.getProfile();
           if (profileResponse.success && profileResponse.data) {
             dispatch({
-              type: 'RESTORE_TOKEN',
-              payload: token,
+              type: 'SIGN_IN_SUCCESS',
+              payload: {
+                user: profileResponse.data,
+                token,
+              },
             });
           } else {
             dispatch({

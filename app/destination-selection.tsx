@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../services/api';
 import { offlineStorage } from '../services/offlineStorage';
 import { useRideStore } from '../store/rideStore';
@@ -22,6 +23,18 @@ interface Destination {
   icon: string;
 }
 
+/** In-flight / offline-friendly defaults when API and cache are empty (PlanePool product goal). */
+const DEFAULT_DESTINATIONS: Destination[] = [
+  { id: 'd1', name: 'City center / downtown', category: 'popular', distance: '~20 km', icon: '🏙️' },
+  { id: 'd2', name: 'Airport hotels', category: 'popular', distance: '~8 km', icon: '🏨' },
+  { id: 'd3', name: 'Train station', category: 'transit', distance: '~15 km', icon: '🚆' },
+  { id: 'd4', name: 'Conference center', category: 'events', distance: '~12 km', icon: '🏢' },
+  { id: 'd5', name: 'Shopping district', category: 'leisure', distance: '~10 km', icon: '🛍️' },
+  { id: 'd6', name: 'Business district', category: 'work', distance: '~18 km', icon: '💼' },
+];
+
+const DEMO_FLIGHT_ID = 'planepool-local-demo-flight';
+
 export default function DestinationSelectionScreen() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,40 +43,83 @@ export default function DestinationSelectionScreen() {
   const [customDestination, setCustomDestination] = useState('');
   const [showCustom, setShowCustom] = useState(false);
   const router = useRouter();
-  const { setSelectedDestination: storeDestination, currentFlightId } = useRideStore();
+  const { state } = useAuth();
+  const setCurrentFlightId = useRideStore((s) => s.setCurrentFlightId);
+  const storeDestination = useRideStore((s) => s.setSelectedDestination);
 
   useEffect(() => {
-    loadDestinations();
-  }, []);
+    if (state.isLoading) return;
+    if (!state.user) {
+      router.replace('/login');
+    }
+  }, [state.isLoading, state.user, router]);
 
-  const loadDestinations = async () => {
+  const resolveFlightId = useCallback(async (): Promise<string | null> => {
+    let fid = useRideStore.getState().currentFlightId;
+    if (fid) return fid;
+    const stored = await offlineStorage.getFlightId();
+    if (stored) {
+      setCurrentFlightId(stored);
+      return stored;
+    }
+    if (__DEV__) {
+      setCurrentFlightId(DEMO_FLIGHT_ID);
+      await offlineStorage.saveFlightId(DEMO_FLIGHT_ID);
+      return DEMO_FLIGHT_ID;
+    }
+    return null;
+  }, [setCurrentFlightId]);
+
+  const loadDestinations = useCallback(async () => {
     try {
       setIsLoading(true);
-      // Try to fetch from API
       const response = await apiClient.getDestinations();
-      if (response.success && response.data) {
+      if (response.success && response.data && response.data.length > 0) {
         setDestinations(response.data);
         await offlineStorage.saveDestinations(response.data);
         setIsOffline(false);
-      } else {
-        // Fall back to offline data
-        const offlineData = await offlineStorage.getDestinations();
+        return;
+      }
+      const offlineData = await offlineStorage.getDestinations();
+      if (offlineData.length > 0) {
         setDestinations(offlineData);
         setIsOffline(true);
+        return;
       }
-    } catch (error) {
-      // Fall back to offline data
+      setDestinations(DEFAULT_DESTINATIONS);
+      setIsOffline(true);
+    } catch {
       const offlineData = await offlineStorage.getDestinations();
-      setDestinations(offlineData);
+      if (offlineData.length > 0) {
+        setDestinations(offlineData);
+      } else {
+        setDestinations(DEFAULT_DESTINATIONS);
+      }
       setIsOffline(true);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (state.isLoading || !state.user) return;
+    let cancelled = false;
+    (async () => {
+      await resolveFlightId();
+      if (!cancelled) await loadDestinations();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [state.isLoading, state.user, resolveFlightId, loadDestinations]);
 
   const handleSelectDestination = async (destination: string) => {
-    if (!currentFlightId) {
-      Alert.alert('Error', 'Flight information not available');
+    const fid = await resolveFlightId();
+    if (!fid) {
+      Alert.alert(
+        'Flight needed',
+        'We could not determine your flight yet. Open the app from home and tap “New ride” first, or try again in local dev mode.',
+      );
       return;
     }
 
@@ -75,7 +131,7 @@ export default function DestinationSelectionScreen() {
 
     // Try to sync with backend
     try {
-      const response = await apiClient.selectDestination(destination, currentFlightId);
+      const response = await apiClient.selectDestination(destination, fid);
       if (response.success) {
         // Navigate to ride matching screen
         router.push('/ride-matching');
@@ -96,6 +152,16 @@ export default function DestinationSelectionScreen() {
 
     await handleSelectDestination(customDestination);
   };
+
+  if (state.isLoading || !state.user) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -192,9 +258,7 @@ export default function DestinationSelectionScreen() {
         <TouchableOpacity
           style={[styles.continueButton, !selectedDestination && styles.buttonDisabled]}
           onPress={() => {
-            if (selectedDestination) {
-              router.push('/ride-matching');
-            }
+            if (selectedDestination) void handleSelectDestination(selectedDestination);
           }}
           disabled={!selectedDestination}
         >

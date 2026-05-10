@@ -11,8 +11,8 @@ import {
   Switch,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../contexts/AuthContext';
-import { apiClient } from '../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+import { apiClient } from '../../services/api';
 
 export default function ProfileScreen() {
   const [isLoading, setIsLoading] = useState(false);

@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { appStorage } from './appStorage';
 
 interface StorageData {
   destinations?: any[];
@@ -15,7 +15,7 @@ class OfflineStorage {
 
   async saveDestinations(destinations: any[]): Promise<void> {
     try {
-      await AsyncStorage.setItem(
+      await appStorage.setItem(
         `${this.prefix}destinations`,
         JSON.stringify(destinations)
       );
@@ -26,7 +26,7 @@ class OfflineStorage {
 
   async getDestinations(): Promise<any[]> {
     try {
-      const data = await AsyncStorage.getItem(`${this.prefix}destinations`);
+      const data = await appStorage.getItem(`${this.prefix}destinations`);
       return data ? JSON.parse(data) : [];
     } catch (error) {
       console.error('Error getting destinations:', error);
@@ -36,7 +36,7 @@ class OfflineStorage {
 
   async saveSelectedDestination(destination: string): Promise<void> {
     try {
-      await AsyncStorage.setItem(
+      await appStorage.setItem(
         `${this.prefix}selectedDestination`,
         destination
       );
@@ -47,7 +47,7 @@ class OfflineStorage {
 
   async getSelectedDestination(): Promise<string | null> {
     try {
-      return await AsyncStorage.getItem(`${this.prefix}selectedDestination`);
+      return await appStorage.getItem(`${this.prefix}selectedDestination`);
     } catch (error) {
       console.error('Error getting selected destination:', error);
       return null;
@@ -56,7 +56,7 @@ class OfflineStorage {
 
   async saveFlightId(flightId: string): Promise<void> {
     try {
-      await AsyncStorage.setItem(`${this.prefix}flightId`, flightId);
+      await appStorage.setItem(`${this.prefix}flightId`, flightId);
     } catch (error) {
       console.error('Error saving flight ID:', error);
     }
@@ -64,7 +64,7 @@ class OfflineStorage {
 
   async getFlightId(): Promise<string | null> {
     try {
-      return await AsyncStorage.getItem(`${this.prefix}flightId`);
+      return await appStorage.getItem(`${this.prefix}flightId`);
     } catch (error) {
       console.error('Error getting flight ID:', error);
       return null;
@@ -73,7 +73,7 @@ class OfflineStorage {
 
   async saveRideGroups(groups: any[]): Promise<void> {
     try {
-      await AsyncStorage.setItem(
+      await appStorage.setItem(
         `${this.prefix}rideGroups`,
         JSON.stringify(groups)
       );
@@ -84,7 +84,7 @@ class OfflineStorage {
 
   async getRideGroups(): Promise<any[]> {
     try {
-      const data = await AsyncStorage.getItem(`${this.prefix}rideGroups`);
+      const data = await appStorage.getItem(`${this.prefix}rideGroups`);
       return data ? JSON.parse(data) : [];
     } catch (error) {
       console.error('Error getting ride groups:', error);
@@ -94,7 +94,7 @@ class OfflineStorage {
 
   async saveMessages(groupId: string, messages: any[]): Promise<void> {
     try {
-      await AsyncStorage.setItem(
+      await appStorage.setItem(
         `${this.prefix}messages_${groupId}`,
         JSON.stringify(messages)
       );
@@ -105,7 +105,7 @@ class OfflineStorage {
 
   async getMessages(groupId: string): Promise<any[]> {
     try {
-      const data = await AsyncStorage.getItem(`${this.prefix}messages_${groupId}`);
+      const data = await appStorage.getItem(`${this.prefix}messages_${groupId}`);
       return data ? JSON.parse(data) : [];
     } catch (error) {
       console.error('Error getting messages:', error);
@@ -125,7 +125,7 @@ class OfflineStorage {
 
   async saveUserProfile(profile: any): Promise<void> {
     try {
-      await AsyncStorage.setItem(
+      await appStorage.setItem(
         `${this.prefix}userProfile`,
         JSON.stringify(profile)
       );
@@ -136,7 +136,7 @@ class OfflineStorage {
 
   async getUserProfile(): Promise<any | null> {
     try {
-      const data = await AsyncStorage.getItem(`${this.prefix}userProfile`);
+      const data = await appStorage.getItem(`${this.prefix}userProfile`);
       return data ? JSON.parse(data) : null;
     } catch (error) {
       console.error('Error getting user profile:', error);
@@ -151,7 +151,7 @@ class OfflineStorage {
         ...action,
         timestamp: Date.now(),
       });
-      await AsyncStorage.setItem(
+      await appStorage.setItem(
         `${this.prefix}syncQueue`,
         JSON.stringify(queue)
       );
@@ -162,7 +162,7 @@ class OfflineStorage {
 
   async getSyncQueue(): Promise<any[]> {
     try {
-      const data = await AsyncStorage.getItem(`${this.prefix}syncQueue`);
+      const data = await appStorage.getItem(`${this.prefix}syncQueue`);
       return data ? JSON.parse(data) : [];
     } catch (error) {
       console.error('Error getting sync queue:', error);
@@ -172,7 +172,7 @@ class OfflineStorage {
 
   async clearSyncQueue(): Promise<void> {
     try {
-      await AsyncStorage.removeItem(`${this.prefix}syncQueue`);
+      await appStorage.removeItem(`${this.prefix}syncQueue`);
     } catch (error) {
       console.error('Error clearing sync queue:', error);
     }
@@ -180,9 +180,9 @@ class OfflineStorage {
 
   async clearAllData(): Promise<void> {
     try {
-      const keys = await AsyncStorage.getAllKeys();
+      const keys = await appStorage.getAllKeys();
       const planepoolKeys = keys.filter((key) => key.startsWith(this.prefix));
-      await AsyncStorage.multiRemove(planepoolKeys);
+      await appStorage.multiRemove(planepoolKeys);
     } catch (error) {
       console.error('Error clearing all data:', error);
     }
@@ -190,7 +190,7 @@ class OfflineStorage {
 
   async getLastSyncTime(): Promise<number | null> {
     try {
-      const data = await AsyncStorage.getItem(`${this.prefix}lastSyncTime`);
+      const data = await appStorage.getItem(`${this.prefix}lastSyncTime`);
       return data ? parseInt(data, 10) : null;
     } catch (error) {
       console.error('Error getting last sync time:', error);
@@ -200,7 +200,7 @@ class OfflineStorage {
 
   async setLastSyncTime(timestamp: number): Promise<void> {
     try {
-      await AsyncStorage.setItem(
+      await appStorage.setItem(
         `${this.prefix}lastSyncTime`,
         timestamp.toString()
       );

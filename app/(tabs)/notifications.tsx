@@ -10,8 +10,8 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { apiClient } from '../services/api';
-import { useNotificationStore } from '../store/notificationStore';
+import { apiClient } from '../../services/api';
+import { useNotificationStore } from '../../store/notificationStore';
 
 interface NotificationItem {
   id: string;

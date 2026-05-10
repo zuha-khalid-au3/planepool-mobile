@@ -58,7 +58,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="bell" color={color} size={size} />
           ),
-          tabBarBadge: unreadCount > 0 ? unreadCount : null,
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
           headerTitle: 'Notifications',
         }}
       />

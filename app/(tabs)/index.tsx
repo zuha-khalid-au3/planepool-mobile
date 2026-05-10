@@ -10,16 +10,32 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
+import { offlineStorage } from '../../services/offlineStorage';
 import { useRideStore } from '../../store/rideStore';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const { state } = useAuth();
-  const { currentGroup } = useRideStore();
+  const { currentGroup, currentFlightId, setCurrentFlightId } = useRideStore();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleStartRide = () => {
+  useEffect(() => {
+    if (state.isLoading) return;
+    if (!state.user) {
+      router.replace('/login');
+    }
+  }, [state.isLoading, state.user, router]);
+
+  const handleStartRide = async () => {
+    let fid = currentFlightId ?? (await offlineStorage.getFlightId());
+    if (!fid) {
+      fid = __DEV__ ? 'planepool-local-demo-flight' : null;
+    }
+    if (fid) {
+      setCurrentFlightId(fid);
+      await offlineStorage.saveFlightId(fid);
+    }
     router.push('/destination-selection');
   };
 
@@ -29,7 +45,7 @@ export default function HomeScreen() {
     }
   };
 
-  if (!state.user) {
+  if (state.isLoading || !state.user) {
     return (
       <View style={styles.container}>
         <View style={styles.loadingContainer}>
