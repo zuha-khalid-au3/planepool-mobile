@@ -1,46 +1,10 @@
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
-import { appStorage } from '../services/appStorage';
+import React, { createContext, useCallback, useContext, useEffect, useReducer } from 'react';
 import { apiClient } from '../services/api';
+import { appStorage } from '../services/appStorage';
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  phoneNumber?: string;
-  profileImage?: string;
-  kycStatus: 'pending' | 'verified' | 'rejected';
-  trustScore: number;
-}
+const AuthContext = createContext(undefined as any);
 
-interface AuthState {
-  isLoading: boolean;
-  isSignout: boolean;
-  user: User | null;
-  userToken: string | null;
-  error: string | null;
-}
-
-type AuthAction =
-  | { type: 'RESTORE_TOKEN'; payload: string | null }
-  | { type: 'SIGN_IN_SUCCESS'; payload: { user: User; token: string } }
-  | { type: 'SIGN_UP_SUCCESS'; payload: { user: User; token: string } }
-  | { type: 'SIGN_OUT' }
-  | { type: 'SET_ERROR'; payload: string }
-  | { type: 'CLEAR_ERROR' };
-
-interface AuthContextType {
-  state: AuthState;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  signInWithPhone: (phoneNumber: string) => Promise<void>;
-  confirmOtp: (phoneNumber: string, otp: string) => Promise<void>;
-  updateProfile: (data: Partial<User>) => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const initialState: AuthState = {
+const initialState = {
   isLoading: true,
   isSignout: false,
   user: null,
@@ -48,7 +12,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-function authReducer(state: AuthState, action: AuthAction): AuthState {
+function authReducer(state: any, action: any) {
   switch (action.type) {
     case 'RESTORE_TOKEN':
       return {
@@ -257,7 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const updateProfile = useCallback(async (data: Partial<User>) => {
+  const updateProfile = useCallback(async (data: any) => {
     try {
       const response = await apiClient.updateProfile(data);
       if (response.success && response.data) {

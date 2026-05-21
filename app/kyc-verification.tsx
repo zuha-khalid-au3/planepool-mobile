@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  Alert,
-  Image,
-} from 'react-native';
 import { useRouter } from 'expo-router';
-import { apiClient } from '../services/api';
+import React, { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { apiClient } from '../services/api';
 
 interface KYCStatus {
   status: 'pending' | 'verified' | 'rejected';
@@ -149,7 +148,7 @@ export default function KYCVerificationScreen() {
               <View>
                 <Text style={styles.documentName}>Government ID</Text>
                 <Text style={styles.documentDescription}>
-                  Passport, Driver's License, or National ID
+                  Passport, Driver{"'"}s License, or National ID
                 </Text>
               </View>
               {kycStatus?.idVerified && <Text style={styles.verifiedIcon}>✓</Text>}

@@ -1,16 +1,16 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  Alert,
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
-import { useRouter } from 'expo-router';
 
 export default function OnboardingScreen() {
   const [step, setStep] = useState(1);
@@ -75,7 +75,7 @@ export default function OnboardingScreen() {
             {/* Step 1: Phone Verification */}
             <View style={styles.header}>
               <Text style={styles.title}>Verify Your Phone</Text>
-              <Text style={styles.subtitle}>We'll send you an OTP to verify your number</Text>
+              <Text style={styles.subtitle}>We will send you an OTP to verify your number</Text>
             </View>
 
             <View style={styles.form}>
@@ -159,7 +159,7 @@ export default function OnboardingScreen() {
                 style={styles.resendButton}
                 onPress={() => setStep(1)}
               >
-                <Text style={styles.resendText}>Didn't receive the code? Resend</Text>
+                <Text style={styles.resendText}>Did not receive the code? Resend</Text>
               </TouchableOpacity>
             </View>
           </>

@@ -206,7 +206,7 @@ export default function RideMatchingScreen() {
           <Text style={styles.infoTitle}>💡 Tips</Text>
           <Text style={styles.infoText}>
             • Join an existing group to start coordinating immediately{'\n'}• Create a new group if
-            you don't see one heading to your destination{'\n'}• Share contact info with group
+            you do not see one heading to your destination{'\n'}• Share contact info with group
             members after landing
           </Text>
         </View>

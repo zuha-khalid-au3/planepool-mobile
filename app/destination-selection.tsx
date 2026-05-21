@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  Alert,
-  TextInput,
-} from 'react-native';
 import { useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../services/api';
 import { offlineStorage } from '../services/offlineStorage';
@@ -189,7 +189,7 @@ export default function DestinationSelectionScreen() {
         {isOffline && (
           <View style={styles.offlineBanner}>
             <Text style={styles.offlineBannerText}>
-              📡 You're in offline mode. Your selection will sync when you land.
+              📡 You are in offline mode. Your selection will sync when you land.
             </Text>
           </View>
         )}
@@ -249,7 +249,7 @@ export default function DestinationSelectionScreen() {
         <View style={styles.infoBox}>
           <Text style={styles.infoTitle}>💡 How it works</Text>
           <Text style={styles.infoText}>
-            Select your destination now. Once you land, you'll be matched with other passengers
+            Select your destination now. Once you land, you will be matched with other passengers
             heading to the same place. You can then coordinate and share a ride!
           </Text>
         </View>

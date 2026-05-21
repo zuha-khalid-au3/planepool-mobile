@@ -1,32 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  FlatList,
-  Alert,
+  View
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { apiClient } from '../../services/api';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-interface Ride {
-  id: string;
-  destination: string;
-  date: string;
-  memberCount: number;
-  cost: number;
-  status: 'completed' | 'active' | 'cancelled';
-  rating?: number;
-}
 
 export default function RidesScreen() {
-  const [rides, setRides] = useState<Ride[]>([]);
+  const [rides, setRides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [filter, setFilter] = useState('all');
   const router = useRouter();
 
   useEffect(() => {
@@ -47,7 +36,7 @@ export default function RidesScreen() {
     }
   };
 
-  const handleRidePress = (ride: Ride) => {
+  const handleRidePress = (ride) => {
     if (ride.status === 'active') {
       router.push('/ride-coordination');
     } else {
@@ -58,7 +47,7 @@ export default function RidesScreen() {
     }
   };
 
-  const handleRateRide = (ride: Ride) => {
+  const handleRateRide = (ride) => {
     Alert.alert(
       'Rate Ride',
       'How would you rate this ride?',
@@ -73,7 +62,7 @@ export default function RidesScreen() {
     );
   };
 
-  const submitRating = async (rideId: string, rating: number) => {
+  const submitRating = async (rideId, rating) => {
     try {
       const response = await apiClient.rateRide(rideId, rating);
       if (response.success) {
@@ -89,7 +78,7 @@ export default function RidesScreen() {
     filter === 'all' ? true : r.status === filter
   );
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case 'completed':
         return '#4caf50';
@@ -102,7 +91,7 @@ export default function RidesScreen() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status) => {
     switch (status) {
       case 'completed':
         return 'check-circle';
